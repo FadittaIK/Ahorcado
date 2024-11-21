@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ahorcado</title>
+
+</head>
+
+<body>
+    <div id="juego"></div>
+
+    <script>
+
+        //la posicion de la primera imagen
+        var numeroImage = 2;
+        var contador = 0;
+        var numeroDeIntentos = 6;
+        posiciones = [];
+        var aciertos = 0;
+
+
+        butonesMarcados = [];
+
+        letras = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"];
+        palabras = ["chocolate", "jardin", "estrella", "ordenador", "trabajo", "puerta", "java", "libro", "crimen","castigo"];
+
+        palabraRandom = Math.floor(Math.random() * palabras.length);
+        function init() {
+
+            //ponemos al principio que todos los butones false ( aun no has sido clicados)
+            for (var b = 0; b < letras.length; b++) {
+                butonesMarcados[b] = false;
+            }
+
+            texto = '<h1> El Ahorcado </h1>';
+            juego = document.querySelector("#juego");
+            juego.innerHTML = texto;
+
+            pintar(palabras[palabraRandom]);
+
+
+        }
+        function pintar(palabra) {
+
+            texto = '<h3 style="color:purple"> Adivina la palabra </h3>';
+            text2 = '<h4 style="color:red"> Tienes  ' + numeroDeIntentos + ' intentos</h4>'
+            document.querySelector("#juego").innerHTML += texto + text2;
+
+            pintarEspacios = "";
+            for (var j = 0; j < palabra.length; j++) {
+                guionBajo = "_ ";
+                posiciones.push(guionBajo)
+                pintarEspacios = '<span>' + posiciones + '</span>';
+            }
+            document.querySelector("#juego").innerHTML += pintarEspacios;
+
+            resultado = " ";
+            for (var i = 0; i < letras.length; i++) {
+                resultado += '<button  style="width:40px;height:40px;margin:4px;border-radius:20px;font-size:1.2em" id="' + i + '" onclick="elegirLetra(' + i + ') ">' + letras[i] + '</button>';
+            }
+            document.querySelector("#juego").innerHTML += '<br> <br>';
+            document.querySelector("#juego").innerHTML += resultado;
+            document.querySelector("#juego").innerHTML += '<br> <br><div id="imagen"><img src="./imagenes/1.PNG" /></div>'
+            texto = '<div id="texto" > </div>';
+            document.querySelector("#juego").innerHTML += texto;
+
+
+        }
+
+        function elegirLetra(index) {
+
+
+            //si el button no ha sido elegido antes
+            if (!butonesMarcados[index]) {
+
+
+                butones = document.querySelectorAll("button");
+
+
+                if (contador === numeroDeIntentos) {
+
+                    document.querySelector("#texto").innerHTML += "La palabra era " + palabras[palabraRandom];
+
+                    setTimeout(function(){
+                            refrescarPagina();
+                        },3000)
+
+                   // refrescarPagina();
+
+                } else if (palabras[palabraRandom].indexOf(letras[index]) === -1 && contador < numeroDeIntentos) {
+
+                    // backgound de los butones
+                    butones[index].style.backgroundColor = "red";
+
+                    var nuevaImagen = '<img src="./imagenes/' + numeroImage + '.PNG"/>';
+                    document.querySelector("#imagen").innerHTML = nuevaImagen;
+                    numeroImage++;
+                    contador++;
+
+                } else {
+
+
+                    var longitudPalabra = palabras[palabraRandom].length;
+
+                    for (var l = 0; l < longitudPalabra; l++) {
+                        if (palabras[palabraRandom][l] === letras[index]) {
+                            aciertos++;
+                        }
+                    }
+
+
+                    console.log(aciertos + " " + longitudPalabra);
+
+                    if (aciertos === longitudPalabra) {
+                        document.querySelector("#texto").innerHTML = " Has adivinado La palabra  " + palabras[palabraRandom];
+                        setTimeout(function(){
+                            refrescarPagina();
+                        },3000)
+                    }
+
+
+                    var indice = palabras[palabraRandom].indexOf(letras[index]);
+
+                    //verificamos si una letra aparece mas de una vez 
+                    while (indice != -1) {
+
+                        posiciones.splice(indice, 1, letras[index]);
+                        document.querySelector("span").innerHTML = posiciones.join("");
+                        butones[index].style.backgroundColor = "green";
+
+                        // la siguiente busqueda comenzará del (indice + 1)
+                        indice = palabras[palabraRandom].indexOf(letras[index], indice + 1);
+                    }
+
+                }
+                butonesMarcados[index] = true;
+            } else {
+                document.querySelector("#texto").innerHTML += '<div style="color:red;font-size:2em">El button ha sido clicado antes, Elige otro</div>';
+            }
+        }
+        function refrescarPagina() {
+            
+            location.reload(); // para efrescar la página 
+        }
+
+        init();
+
+
+
+    </script>
+</body>
+
+</html>
